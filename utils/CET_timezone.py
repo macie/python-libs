@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Central European Time definition for datetime and time modules.
 
@@ -40,8 +41,7 @@ class CETTimeZone(tzinfo):
 
     def dst(self, dt):
         if dt is None or dt.tzinfo is None:
-            return timedelta(0)
-        assert dt.tzinfo is self
+            return timedelta(hours=0)
 
         # summer time range
         year = dt.year
@@ -49,9 +49,9 @@ class CETTimeZone(tzinfo):
         end = self.__last_sunday_of_month(year, 10).replace(hour=1)
 
         if start <= dt.replace(tzinfo=None) < end:
-            return timedelta(1)
+            return timedelta(hours=1)
         else:
-            return timedelta(0)
+            return timedelta(hours=0)
 
     @staticmethod
     def __last_sunday_of_month(year, month):

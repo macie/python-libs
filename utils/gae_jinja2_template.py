@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Jinja2 template decorator for Google App Engine.
 

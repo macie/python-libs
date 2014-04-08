@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Memcache decorator for Google App Engine.
 
