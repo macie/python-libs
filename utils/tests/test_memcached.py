@@ -6,8 +6,6 @@ Memcached decorator unit tests.
 from mock import MagicMock, patch
 import unittest
 
-from google.appengine.ext import testbed
-
 from utils.gae_memcached import memcached
 
 
@@ -16,25 +14,48 @@ class MemcachedTest(unittest.TestCase):
     Memcached decorator tests.
 
     """
-    def setUp(self):
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
-        self.testbed.init_memcache_stub()
+    @patch('google.appengine.api.memcache.get')
+    def test_no_time_in_cache(self, memcache_mock):
+        key, value = 'test_key', 'test value'
+        memcache_mock.return_value = value
 
-    def tearDown(self):
-        self.testbed.deactivate()
+        @memcached(key)
+        def test_function():
+            return value
 
-    def test_no_time(self):
+        result = test_function()
+
+        self.assertEqual(result, value)
+
+    @patch('google.appengine.api.memcache.get', MagicMock(return_value=None))
+    @patch('google.appengine.api.memcache.set', MagicMock(return_value=True))
+    def test_no_time_not_in_cache(self):
         key, value = 'test_key', 'test value'
 
         @memcached(key)
+        def test_function():
+            return value
+
+        result = test_function()
+
+        self.assertEqual(result, value)
+
+    @patch('google.appengine.api.memcache.get')
+    def test_with_time_in_cache(self, memcache_mock):
+        key, value = 'test_key', 'test value'
+        memcache_mock.return_value = value
+        time = 1
+
+        @memcached(key, time)
         def test_function():
             return value
         result = test_function()
 
         self.assertEqual(result, value)
 
-    def test_with_time(self):
+    @patch('google.appengine.api.memcache.get', MagicMock(return_value=None))
+    @patch('google.appengine.api.memcache.set', MagicMock(return_value=True))
+    def test_with_time_not_in_cache(self):
         key, value = 'test_key', 'test value'
         time = 1
 
@@ -46,8 +67,8 @@ class MemcachedTest(unittest.TestCase):
         self.assertEqual(result, value)
 
     @patch('logging.critical', MagicMock())
-    @patch('google.appengine.api.memcache.set',
-           MagicMock(return_value=None))
+    @patch('google.appengine.api.memcache.get', MagicMock(return_value=None))
+    @patch('google.appengine.api.memcache.set', MagicMock(return_value=None))
     def test_set_error(self):
         key, value = 'test_key', 'test value'
 
