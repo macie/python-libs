@@ -2,7 +2,7 @@
 """
 Central European Time definition for datetime and time modules.
 
-Maciej Żok, 2012 MIT License
+Maciej Żok, 2014 MIT License
 
 """
 from datetime import datetime, timedelta, tzinfo
@@ -22,6 +22,7 @@ class CETTimeZone(tzinfo):
 
     """
     def __init__(self):
+        super(CETTimeZone, self).__init__()
         self.stdoffset = timedelta(hours=1)
         self.reprname = 'Central European'
         self.stdname = 'CET'
@@ -55,6 +56,17 @@ class CETTimeZone(tzinfo):
 
     @staticmethod
     def __last_sunday_of_month(year, month):
+        """
+        Shows the last sunday of the month.
+
+        Arguments:
+            year (int) - A year.
+            month (int) - A month.
+
+        Returns:
+            A day number.
+
+        """
         # find last day of month
         last_sunday = datetime(year, month + 1, 1) - timedelta(days=1)
         # weekday(): monday = 0, ..., sunday = 6

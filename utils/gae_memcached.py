@@ -2,7 +2,7 @@
 """
 Memcache decorator for Google App Engine.
 
-Maciej Żok, 2013 MIT License
+Maciej Żok, 2014 MIT License
 
 """
 from functools import wraps
@@ -20,7 +20,7 @@ class memcached(object):
                                    item never expire.
 
     Returns:
-        Object stored in memcache.
+        An object stored in memcache.
 
     Example:
         @classmethod
@@ -33,12 +33,19 @@ class memcached(object):
         self.key = key
         self.time = time
 
-    def __call__(self, f):
-        @wraps(f)
+    def __call__(self, cached_function):
+        @wraps(cached_function)
         def get_from_memcache(*args, **kwargs):
+            """
+            Gets value from memcache or set it (if not exist).
+
+            Returns:
+                A cached value.
+
+            """
             value = memcache.get(self.key)
             if not value:  # memcache object not exist
-                value = f(*args, **kwargs)
+                value = cached_function(*args, **kwargs)
                 if not memcache.set(self.key, value, self.time):
                     logging.critical("Setting memcache for <%r> failed!",
                                      self.key)
